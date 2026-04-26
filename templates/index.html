@@ -322,6 +322,17 @@
                 <span class="mode-label" id="modeLabel">Demo (Mock Data)</span>
             </div>
 
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; color: #333; margin-right: 10px;">Select Scenario:</label>
+                <select id="scenarioSelect" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 1em;">
+                    <option value="healthy">✅ Healthy Organization</option>
+                    <option value="needs_improvement">📈 Needs Improvement</option>
+                    <option value="post_incident">🚨 Post-Incident Recovery</option>
+                    <option value="non_compliant">❌ Non-Compliant</option>
+                    <option value="recovering">⬆️ Recovering</option>
+                </select>
+            </div>
+
             <div class="button-group">
                 <button id="collectBtn" onclick="collectEvidence()">
                     📊 Collect Evidence (Multi-Model Pipeline)
@@ -392,6 +403,7 @@
             const statusList = document.getElementById('statusList');
             const resultsContainer = document.getElementById('resultsContainer');
             const demoMode = document.getElementById('demoModeToggle').checked;
+            const scenario = document.getElementById('scenarioSelect').value;
 
             btn.disabled = true;
             errorMsg.classList.remove('show');
@@ -406,7 +418,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ demo_mode: demoMode })
+                    body: JSON.stringify({ demo_mode: demoMode, scenario: scenario })
                 });
 
                 const data = await response.json();
