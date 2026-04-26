@@ -11,7 +11,11 @@ app = Flask(__name__)
 api_key = os.getenv("TOKENROUTER_API_KEY")
 
 @app.route("/")
-def index():
+def landing():
+    return render_template("landing.html")
+
+@app.route("/demo")
+def demo():
     return render_template("index.html")
 
 @app.route("/api/health")

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustChain - Automated SOC 2 Compliance Auditing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-darker: #05070f;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-bright: #a78bfa;
+            --text-1: #f8fafc;
+            --text-2: #cbd5e1;
+            --text-3: #94a3b8;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Spline Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-1);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 10% 30%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-2);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-bright);
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: 'Spline Sans', sans-serif;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--accent-bright), var(--accent-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero .subtitle {
+            font-size: 20px;
+            color: var(--text-2);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            padding: 14px 32px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: 'Spline Sans', sans-serif;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-bright);
+            padding: 14px 32px;
+            border-radius: 6px;
+            border: 1px solid var(--accent-1);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: 'Spline Sans', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2);
+        }
+
+        .hero-visual {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-visual svg {
+            width: 100%;
+            height: 300px;
+            opacity: 0.9;
+        }
+
+        /* ===== FEATURES ===== */
+        .features {
+            padding: 80px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--text-2);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: rgba(30, 33, 57, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent-1);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-2);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ===== MODELS ===== */
+        .models {
+            padding: 80px 0;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .model-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            padding: 28px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .model-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .model-role {
+            color: var(--text-2);
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .model-desc {
+            color: var(--text-3);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            padding: 60px 40px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            margin: 80px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: var(--text-2);
+            margin-bottom: 32px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid rgba(99, 102, 241, 0.1);
+            text-align: center;
+            color: var(--text-3);
+            font-size: 13px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card, .model-card {
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero .subtitle {
+                font-size: 16px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .section-header h2 {
+                font-size: 28px;
+            }
+
+            .cta-section {
+                margin: 40px 0;
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">🔗 TrustChain</div>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#models">AI Models</a>
+                    <a href="https://github.com/manidweepsharma/TrustChain" target="_blank">GitHub</a>
+                    <a href="/demo" class="cta-btn">Launch Demo</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <h1>Automated SOC 2 Compliance Auditing</h1>
+            <p class="subtitle">
+                Collect, analyze, and generate audit-ready compliance reports in minutes using multi-model AI orchestration.
+            </p>
+            <div class="hero-buttons">
+                <a href="/demo" class="btn-primary">Start Free Audit</a>
+                <a href="https://github.com/manidweepsharma/TrustChain" target="_blank" class="btn-secondary">View on GitHub</a>
+            </div>
+            <div class="hero-visual">
+                <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:0.1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="20" y="20" width="110" height="160" rx="8" fill="url(#grad)" stroke="#6366f1" stroke-width="2" opacity="0.8"/>
+                    <text x="75" y="110" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="bold">Data Collection</text>
+
+                    <path d="M 140 100 L 160 100" stroke="#6366f1" stroke-width="2" stroke-dasharray="4"/>
+                    <circle cx="150" cy="100" r="4" fill="#a78bfa"/>
+
+                    <rect x="170" y="20" width="110" height="160" rx="8" fill="url(#grad)" stroke="#8b5cf6" stroke-width="2" opacity="0.8"/>
+                    <text x="225" y="110" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="bold">AI Analysis</text>
+
+                    <path d="M 290 100 L 310 100" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="4"/>
+                    <circle cx="300" cy="100" r="4" fill="#a78bfa"/>
+
+                    <rect x="320" y="20" width="60" height="160" rx="8" fill="url(#grad)" stroke="#a78bfa" stroke-width="2" opacity="0.8"/>
+                    <text x="350" y="110" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="bold">Report</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why TrustChain?</h2>
+                <p>Purpose-built for compliance teams that need speed without sacrificing quality</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>Get audit-ready reports in seconds, not weeks. Multi-model orchestration accelerates every stage.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Multi-Vendor Audits</h3>
+                    <p>Audit any SaaS platform your organization depends on. Healthcare auditing Salesforce? Financial institution evaluating Stripe? We handle it.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Compliance Metrics</h3>
+                    <p>Real-time compliance scoring, risk assessments, and control-level analysis. See exactly where you stand.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Evidence-Based</h3>
+                    <p>Automated evidence collection from GitHub, AWS, Slack, and other systems. Audit-grade documentation included.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Intelligent Analysis</h3>
+                    <p>Three specialized AI models (extraction, risk analysis, reporting) work together to understand your compliance posture.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Professional Reports</h3>
+                    <p>Generate executive summaries, findings, and recommendations that satisfy auditors and regulators.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI MODELS -->
+    <section class="models" id="models">
+        <div class="container">
+            <div class="section-header">
+                <h2>Multi-Model AI Pipeline</h2>
+                <p>Specialized models working together for compliance intelligence</p>
+            </div>
+            <div class="models-grid">
+                <div class="model-card">
+                    <div class="model-name">GPT-4o-mini</div>
+                    <div class="model-role">Data Extraction</div>
+                    <div class="model-desc">Transforms raw compliance data into structured metrics: user counts, MFA rates, admin ratios, and stale account detection.</div>
+                </div>
+                <div class="model-card">
+                    <div class="model-name">Claude Opus 4.7</div>
+                    <div class="model-role">Risk Analysis</div>
+                    <div class="model-desc">Deep reasoning about control gaps, contextual risk assessment, and compliance implications specific to your organization type.</div>
+                </div>
+                <div class="model-card">
+                    <div class="model-name">GPT-5.4</div>
+                    <div class="model-role">Report Generation</div>
+                    <div class="model-desc">Produces professional SOC 2 audit documents with executive summaries, findings, and actionable recommendations.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Automate Your Audits?</h2>
+            <p>Start with a free demo. No API keys required for demo mode.</p>
+            <a href="/demo" class="btn-primary">Launch Interactive Demo</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 TrustChain. Built for compliance. Powered by TokenRouter AI orchestration.</p>
+        </div>
+    </footer>
+</body>
+</html>
