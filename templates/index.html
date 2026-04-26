@@ -505,6 +505,105 @@
             align-items: center;
             gap: 12px;
         }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--accent-bright);
+            margin-bottom: 8px;
+        }
+
+        .metric-bar {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .metric-bar-fill {
+            background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .metric-status {
+            font-size: 0.75em;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .status-critical {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ff6b6b;
+        }
+
+        .chart-container {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-title {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -585,6 +684,52 @@
             </div>
 
             <div class="results-container" id="resultsContainer">
+                <div class="metrics-grid" id="metricsGrid" style="display: none;">
+                    <div class="metric-card">
+                        <div class="metric-label">📊 Compliance Score</div>
+                        <div class="metric-value" id="complianceScore">0</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" id="complianceBar" style="width: 0%"></div>
+                        </div>
+                        <div class="metric-status" id="complianceStatus">Low</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">🔐 MFA Compliance</div>
+                        <div class="metric-value" id="mfaRate">0%</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" id="mfaBar" style="width: 0%"></div>
+                        </div>
+                        <div class="metric-status" id="mfaStatus">Low</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">👥 Active Users</div>
+                        <div class="metric-value" id="activeUsers">0</div>
+                        <div style="font-size: 0.85em; color: var(--text-secondary);">Total Members</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">⚙️ Admin Ratio</div>
+                        <div class="metric-value" id="adminRatio">0%</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" id="adminBar" style="width: 0%"></div>
+                        </div>
+                        <div class="metric-status" id="adminStatus">Medium</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">🗑️ Stale Accounts</div>
+                        <div class="metric-value" id="staleCount">0</div>
+                        <div style="font-size: 0.85em; color: var(--text-secondary);">Need Review</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">🎓 Training Complete</div>
+                        <div class="metric-value" id="trainingRate">0%</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" id="trainingBar" style="width: 0%"></div>
+                        </div>
+                        <div class="metric-status" id="trainingStatus">Low</div>
+                    </div>
+                </div>
+
+                <!-- Original results sections -->
                 <!-- GPT-4 Results -->
                 <div class="result-section">
                     <div class="result-header">
@@ -620,7 +765,11 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let riskChart = null;
+        let mfaChart = null;
+
         document.getElementById('demoModeToggle').addEventListener('change', function() {
             const modeLabel = document.getElementById('modeLabel');
             if (this.checked) {
@@ -629,6 +778,53 @@
                 modeLabel.textContent = 'Real (GitHub API)';
             }
         });
+
+        function updateMetrics(extractedData) {
+            const total = extractedData.total_users || 0;
+            const mfaRate = extractedData.mfa_compliance_rate || 0;
+            const adminPct = extractedData.admin_percentage || 0;
+            const staleCount = extractedData.stale_accounts_count || 0;
+            const trainingRate = Math.round((extractedData.security_training_completed || 0) / (extractedData.total_training || 1) * 100);
+
+            // Calculate compliance score based on metrics
+            const complianceScore = Math.round((mfaRate * 0.4) + (trainingRate * 0.3) + ((100 - adminPct) * 0.2) + ((100 - Math.min(staleCount * 10, 100)) * 0.1));
+
+            // Update metrics
+            document.getElementById('complianceScore').textContent = complianceScore;
+            document.getElementById('complianceBar').style.width = complianceScore + '%';
+            document.getElementById('complianceStatus').textContent = getComplianceStatus(complianceScore);
+            document.getElementById('complianceStatus').className = 'metric-status ' + getStatusClass(complianceScore);
+
+            document.getElementById('mfaRate').textContent = Math.round(mfaRate) + '%';
+            document.getElementById('mfaBar').style.width = mfaRate + '%';
+            document.getElementById('mfaStatus').textContent = mfaRate >= 90 ? 'Excellent' : mfaRate >= 70 ? 'Good' : 'Needs Work';
+            document.getElementById('mfaStatus').className = 'metric-status ' + (mfaRate >= 90 ? 'status-low' : mfaRate >= 70 ? 'status-medium' : 'status-high');
+
+            document.getElementById('activeUsers').textContent = total;
+            document.getElementById('adminRatio').textContent = Math.round(adminPct) + '%';
+            document.getElementById('adminBar').style.width = adminPct + '%';
+            document.getElementById('adminStatus').textContent = adminPct <= 15 ? 'Ideal' : adminPct <= 25 ? 'Acceptable' : 'High Risk';
+            document.getElementById('adminStatus').className = 'metric-status ' + (adminPct <= 15 ? 'status-low' : adminPct <= 25 ? 'status-medium' : 'status-high');
+
+            document.getElementById('staleCount').textContent = staleCount;
+            document.getElementById('trainingRate').textContent = trainingRate + '%';
+            document.getElementById('trainingBar').style.width = trainingRate + '%';
+            document.getElementById('trainingStatus').textContent = trainingRate >= 90 ? 'Complete' : trainingRate >= 70 ? 'Partial' : 'Incomplete';
+            document.getElementById('trainingStatus').className = 'metric-status ' + (trainingRate >= 90 ? 'status-low' : trainingRate >= 70 ? 'status-medium' : 'status-high');
+        }
+
+        function getComplianceStatus(score) {
+            if (score >= 85) return 'Excellent';
+            if (score >= 70) return 'Good';
+            if (score >= 50) return 'Fair';
+            return 'Poor';
+        }
+
+        function getStatusClass(score) {
+            if (score >= 85) return 'status-low';
+            if (score >= 70) return 'status-medium';
+            return 'status-high';
+        }
 
         async function collectEvidence() {
             const btn = document.getElementById('collectBtn');
@@ -688,6 +884,10 @@
                     data.risk_analysis;
                 document.getElementById('reportContent').textContent =
                     data.audit_report;
+
+                // Update and show metrics
+                document.getElementById('metricsGrid').style.display = 'grid';
+                updateMetrics(data.extracted_data);
 
                 resultsContainer.classList.add('show');
             } catch (error) {
