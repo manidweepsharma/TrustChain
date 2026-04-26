@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC 2 Evidence Collector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background: #f0f0f0;
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .secondary-btn:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-section {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .status-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .status-item {
+            padding: 8px 0;
+            color: #666;
+            font-size: 0.9em;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-item.success {
+            color: #28a745;
+        }
+
+        .status-item.error {
+            color: #dc3545;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .result-section {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .result-header h3 {
+            font-size: 1.3em;
+            color: #333;
+            margin: 0;
+        }
+
+        .model-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .gpt4-tag {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .claude-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gemini-tag {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .result-content {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #333;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading-message {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .loading-message.show {
+            display: block;
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .mode-label {
+            font-size: 0.9em;
+            color: #666;
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 SOC 2 Evidence Collector</h1>
+            <p>Automated Compliance Evidence Gathering with Multi-Model AI</p>
+        </div>
+
+        <div class="content">
+            <div class="mode-toggle">
+                <span class="toggle-label">Data Mode:</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="demoModeToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="mode-label" id="modeLabel">Demo (Mock Data)</span>
+            </div>
+
+            <div class="button-group">
+                <button id="collectBtn" onclick="collectEvidence()">
+                    📊 Collect Evidence (Multi-Model Pipeline)
+                </button>
+            </div>
+
+            <div class="error-message" id="errorMsg"></div>
+            <div class="loading-message" id="loadingMsg">
+                <span class="spinner"></span>
+                Collecting evidence...
+            </div>
+
+            <div class="status-section">
+                <div class="status-title">📋 Status Updates</div>
+                <div id="statusList"></div>
+            </div>
+
+            <div class="results-container" id="resultsContainer">
+                <!-- GPT-4 Results -->
+                <div class="result-section">
+                    <div class="result-header">
+                        <h3>📊 Structured Data Extraction</h3>
+                        <span class="model-tag gpt4-tag">GPT-4o-mini</span>
+                    </div>
+                    <div class="result-content" id="extractedContent">Loading...</div>
+                </div>
+
+                <!-- Claude Results -->
+                <div class="result-section">
+                    <div class="result-header">
+                        <h3>🔍 Compliance Risk Analysis</h3>
+                        <span class="model-tag claude-tag">Claude</span>
+                    </div>
+                    <div class="result-content" id="analysisContent">Loading...</div>
+                </div>
+
+                <!-- Gemini Results -->
+                <div class="result-section">
+                    <div class="result-header">
+                        <h3>📄 Audit-Ready Report</h3>
+                        <span class="model-tag gemini-tag">Gemini</span>
+                    </div>
+                    <div class="result-content" id="reportContent">Loading...</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="secondary-btn" onclick="downloadPackage()">⬇️ Download Package</button>
+                    <button onclick="collectEvidence()">🔄 Regenerate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('demoModeToggle').addEventListener('change', function() {
+            const modeLabel = document.getElementById('modeLabel');
+            if (this.checked) {
+                modeLabel.textContent = 'Demo (Mock Data)';
+            } else {
+                modeLabel.textContent = 'Real (GitHub API)';
+            }
+        });
+
+        async function collectEvidence() {
+            const btn = document.getElementById('collectBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const loadingMsg = document.getElementById('loadingMsg');
+            const statusList = document.getElementById('statusList');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const demoMode = document.getElementById('demoModeToggle').checked;
+
+            btn.disabled = true;
+            errorMsg.classList.remove('show');
+            errorMsg.textContent = '';
+            loadingMsg.classList.add('show');
+            statusList.innerHTML = '';
+            resultsContainer.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/collect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ demo_mode: demoMode })
+                });
+
+                const data = await response.json();
+
+                if (data.status_updates) {
+                    data.status_updates.forEach(update => {
+                        const item = document.createElement('div');
+                        item.className = 'status-item';
+                        if (update.message.includes('ERROR')) {
+                            item.classList.add('error');
+                        } else if (update.message.includes('✓')) {
+                            item.classList.add('success');
+                        }
+                        item.textContent = update.message;
+                        statusList.appendChild(item);
+                    });
+                }
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Evidence collection failed');
+                }
+
+                document.getElementById('extractedContent').textContent =
+                    JSON.stringify(data.extracted_data, null, 2);
+                document.getElementById('analysisContent').textContent =
+                    data.risk_analysis;
+                document.getElementById('reportContent').textContent =
+                    data.audit_report;
+
+                resultsContainer.classList.add('show');
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = `Error: ${error.message}`;
+                errorMsg.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                loadingMsg.classList.remove('show');
+            }
+        }
+
+        function downloadPackage() {
+            const extracted = document.getElementById('extractedContent').textContent;
+            const analysis = document.getElementById('analysisContent').textContent;
+            const report = document.getElementById('reportContent').textContent;
+
+            const content = `SOC 2 EVIDENCE PACKAGE
+Generated: ${new Date().toISOString()}
+
+=== STRUCTURED DATA EXTRACTION (GPT-4) ===
+${extracted}
+
+=== COMPLIANCE RISK ANALYSIS (Claude) ===
+${analysis}
+
+=== AUDIT REPORT (Gemini) ===
+${report}`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `soc2-evidence-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        window.addEventListener('load', () => {
+            fetch('/api/health')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.tokenrouter_configured) {
+                        document.getElementById('errorMsg').textContent =
+                            'Warning: TokenRouter API key not configured';
+                        document.getElementById('errorMsg').classList.add('show');
+                    }
+                });
+        });
+    </script>
+</body>
+</html>
