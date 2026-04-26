@@ -4,9 +4,11 @@ import requests
 from datetime import datetime, timedelta
 
 class SOC2Agent:
-    def __init__(self, api_key, demo_mode=True):
+    def __init__(self, api_key, demo_mode=True, auditor=None, target=None):
         self.api_key = api_key
         self.demo_mode = demo_mode
+        self.auditor = auditor or {}
+        self.target = target or {}
         self.tokenrouter_url = "https://api.tokenrouter.com/v1/chat/completions"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
@@ -182,24 +184,33 @@ Return ONLY valid JSON, no markdown formatting or code blocks."""
         """Use Claude Opus to analyze compliance risks"""
         self.add_status("Analyzing compliance risks with Claude Opus...")
 
-        prompt = f"""You are a SOC 2 compliance auditor reviewing Control AC-2: User Access Review.
+        auditor_name = self.auditor.get('name', 'Organization')
+        target_name = self.target.get('name', 'Vendor')
+        target_type = self.target.get('type', 'System')
 
-Access data:
+        prompt = f"""You are a SOC 2 compliance auditor at {auditor_name}, reviewing vendor compliance.
+
+AUDIT SCOPE:
+- Auditing Company: {auditor_name} ({self.auditor.get('type', 'Organization')})
+- Vendor/Target Being Assessed: {target_name} ({target_type})
+- Control: AC-2 (User Access Review)
+
+Access data for {target_name}:
 {json.dumps(structured_data, indent=2)}
 
 GitHub details:
 - Inactive accounts: {github_data.get('inactive_accounts', [])}
 - Last access review: {github_data.get('access_last_reviewed')}
 
-Analyze for SOC 2 compliance:
+As a {auditor_name} auditor, analyze {target_name} for SOC 2 compliance:
 
 1. Stale Accounts: Are there inactive accounts that should be deprovisioned?
-2. Admin Ratio: Is {structured_data.get('admin_percentage', 0)}% appropriate for an organization?
-3. MFA Compliance: Is {structured_data.get('mfa_compliance_rate', 0)}% adequate?
+2. Admin Ratio: Is {structured_data.get('admin_percentage', 0)}% appropriate for a {target_type}?
+3. MFA Compliance: Is {structured_data.get('mfa_compliance_rate', 0)}% adequate for regulatory requirements?
 4. Access Review: Has a quarterly review been performed recently?
 5. New User Onboarding: Is the onboarding process properly documented?
 
-Provide specific findings with risk levels (HIGH/MEDIUM/LOW) and evidence."""
+Provide specific findings with risk levels (HIGH/MEDIUM/LOW) and evidence relevant to {auditor_name}'s compliance needs."""
 
         try:
             response = self.call_model("anthropic/claude-opus-4.7", prompt, temperature=0.7)
@@ -213,24 +224,34 @@ Provide specific findings with risk levels (HIGH/MEDIUM/LOW) and evidence."""
         """Use GPT-5.4 to generate formal audit report"""
         self.add_status("Generating audit report with GPT-5.4...")
 
+        auditor_name = self.auditor.get('name', 'Auditing Organization')
+        target_name = self.target.get('name', 'Vendor')
+        target_type = self.target.get('type', 'System')
+
         extracted_str = json.dumps(structured_data, indent=2)
         aws_str = json.dumps(aws_data, indent=2)
         slack_str = json.dumps(slack_data, indent=2)
 
         prompt = f"""Create a formal SOC 2 audit evidence document for Control AC-2: User Access Review.
 
+AUDIT CONTEXT:
+- Auditing Organization: {auditor_name}
+- Vendor Being Assessed: {target_name} ({target_type})
+- Purpose: SOC 2 Type II Compliance Audit
+- Prepared by: {auditor_name} Compliance Team
+
 EVIDENCE SOURCES:
 
-GitHub Access Data:
+Access Control Data:
 {extracted_str}
 
 Risk Analysis:
 {risk_analysis}
 
-AWS IAM Evidence:
+Infrastructure Evidence:
 {aws_str}
 
-Security Training Evidence:
+Training & Security Records:
 {slack_str}
 
 Generate a professional audit document with these sections:
@@ -243,8 +264,9 @@ Generate a professional audit document with these sections:
 Include:
 - Audit Period: Q1 2026
 - Prepared: April 25, 2026
-- Control: AC-2 - User Access Review
-- Organization: acme-corp"""
+- Auditor: {auditor_name}
+- Vendor: {target_name}
+- Control: AC-2 - User Access Review"""
 
         try:
             response = self.call_model("openai/gpt-5.4", prompt, temperature=0.7)

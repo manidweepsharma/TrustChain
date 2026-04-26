@@ -1,8 +1,78 @@
-scenarios = {
+auditors = {
+    "healthcare": {
+        "name": "MediCare Systems",
+        "type": "Healthcare Provider",
+        "description": "HIPAA-regulated healthcare organization"
+    },
+    "financial": {
+        "name": "SecureBank Ltd",
+        "type": "Financial Services",
+        "description": "Regulated financial institution"
+    },
+    "ecommerce": {
+        "name": "RetailTech Corp",
+        "type": "E-Commerce Company",
+        "description": "Large online retailer"
+    },
+    "legal": {
+        "name": "LawFlow Partners",
+        "type": "Legal Firm",
+        "description": "Enterprise legal services"
+    },
+    "manufacturing": {
+        "name": "IndustrialOps Inc",
+        "type": "Manufacturing",
+        "description": "Industrial manufacturing company"
+    }
+}
+
+targets = {
+    "salesforce": {
+        "name": "Salesforce CRM",
+        "type": "CRM Platform",
+        "description": "Customer relationship management system"
+    },
+    "aws": {
+        "name": "AWS Infrastructure",
+        "type": "Cloud Services",
+        "description": "Amazon Web Services cloud platform"
+    },
+    "slack": {
+        "name": "Slack Enterprise",
+        "type": "Communication Platform",
+        "description": "Team collaboration and messaging"
+    },
+    "stripe": {
+        "name": "Stripe Payments",
+        "type": "Payment Processor",
+        "description": "Payment processing platform"
+    },
+    "okta": {
+        "name": "Okta Identity",
+        "type": "Identity Management",
+        "description": "Identity and access management"
+    },
+    "github": {
+        "name": "GitHub Enterprise",
+        "type": "Code Repository",
+        "description": "Source code management platform"
+    },
+    "docusign": {
+        "name": "DocuSign eSignature",
+        "type": "Document Management",
+        "description": "Electronic signature and document platform"
+    },
+    "tableau": {
+        "name": "Tableau Analytics",
+        "type": "Analytics Platform",
+        "description": "Business intelligence and analytics"
+    }
+}
+
+risk_profiles = {
     "healthy": {
         "name": "Healthy Company",
         "description": "Strong compliance posture, minimal findings",
-        "organization": "TechCorp Inc",
         "total_members": 52,
         "admin_count": 4,
         "inactive_accounts": [],
@@ -17,7 +87,6 @@ scenarios = {
     "needs_improvement": {
         "name": "Needs Improvement",
         "description": "Multiple findings, requires immediate attention",
-        "organization": "StartupXYZ",
         "total_members": 28,
         "admin_count": 8,
         "inactive_accounts": ["contractor_old", "intern_2023", "temp_vendor"],
@@ -32,7 +101,6 @@ scenarios = {
     "post_incident": {
         "name": "Post-Incident Recovery",
         "description": "Recovering from security incident, implementing controls",
-        "organization": "FinanceHQ",
         "total_members": 95,
         "admin_count": 15,
         "inactive_accounts": ["breach_account_1", "breach_account_2", "breach_account_3"],
@@ -47,7 +115,6 @@ scenarios = {
     "startup": {
         "name": "Early-Stage Startup",
         "description": "Basic security controls, growing infrastructure",
-        "organization": "InnovateLabs",
         "total_members": 15,
         "admin_count": 5,
         "inactive_accounts": [],
@@ -62,7 +129,6 @@ scenarios = {
     "enterprise": {
         "name": "Large Enterprise",
         "description": "Complex access management, multiple teams",
-        "organization": "GlobalCorp",
         "total_members": 342,
         "admin_count": 28,
         "inactive_accounts": ["old_emp_1", "contractor_expired"],
@@ -74,40 +140,9 @@ scenarios = {
         "expected_findings": 2,
         "risk_level": "LOW"
     },
-    "healthcare": {
-        "name": "Healthcare Provider",
-        "description": "HIPAA compliance focused, strict controls",
-        "organization": "MediCare Systems",
-        "total_members": 67,
-        "admin_count": 5,
-        "inactive_accounts": [],
-        "mfa_enabled_users": 67,
-        "mfa_disabled_users": 0,
-        "access_last_reviewed": "2026-04-10",
-        "security_training_completed": 67,
-        "total_training": 67,
-        "expected_findings": 0,
-        "risk_level": "LOW"
-    },
-    "financial": {
-        "name": "Financial Services",
-        "description": "Regulatory compliance required, high security",
-        "organization": "SecureBank Ltd",
-        "total_members": 156,
-        "admin_count": 12,
-        "inactive_accounts": ["departed_emp_1"],
-        "mfa_enabled_users": 155,
-        "mfa_disabled_users": 1,
-        "access_last_reviewed": "2026-04-18",
-        "security_training_completed": 150,
-        "total_training": 156,
-        "expected_findings": 1,
-        "risk_level": "LOW"
-    },
     "non_compliant": {
         "name": "Non-Compliant Organization",
         "description": "Critical security gaps, urgent remediation needed",
-        "organization": "LegacyTech Co",
         "total_members": 45,
         "admin_count": 18,
         "inactive_accounts": ["user1", "user2", "user3", "user4", "user5"],
@@ -122,7 +157,6 @@ scenarios = {
     "recovering": {
         "name": "Remediation in Progress",
         "description": "Addressing previous audit findings",
-        "organization": "RefreshCorp",
         "total_members": 73,
         "admin_count": 7,
         "inactive_accounts": ["old_contractor"],
@@ -137,7 +171,6 @@ scenarios = {
     "perfect": {
         "name": "Perfect Compliance",
         "description": "All controls operational and effective",
-        "organization": "SecureFirst Corp",
         "total_members": 89,
         "admin_count": 5,
         "inactive_accounts": [],

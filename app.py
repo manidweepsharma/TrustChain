@@ -3,6 +3,7 @@ import json
 from flask import Flask, render_template, jsonify, request
 from dotenv import load_dotenv
 from agent import SOC2Agent
+from scenarios import auditors, targets, risk_profiles
 
 load_dotenv()
 
@@ -31,8 +32,15 @@ def collect():
 
         data = request.get_json() or {}
         demo_mode = data.get('demo_mode', True)
+        auditor_id = data.get('auditor', 'healthcare')
+        target_id = data.get('target', 'salesforce')
+        risk_profile = data.get('risk_profile', 'healthy')
 
-        agent = SOC2Agent(api_key, demo_mode=demo_mode)
+        auditor = auditors.get(auditor_id, {})
+        target = targets.get(target_id, {})
+        profile = risk_profiles.get(risk_profile, {})
+
+        agent = SOC2Agent(api_key, demo_mode=demo_mode, auditor=auditor, target=target)
         result = agent.collect_evidence()
 
         return jsonify(result)

@@ -524,15 +524,47 @@
                 <span class="mode-label" id="modeLabel">Demo (Mock Data)</span>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; color: #333; margin-right: 10px;">Select Scenario:</label>
-                <select id="scenarioSelect" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 1em;">
-                    <option value="healthy">✅ Healthy Organization</option>
-                    <option value="needs_improvement">📈 Needs Improvement</option>
-                    <option value="post_incident">🚨 Post-Incident Recovery</option>
-                    <option value="non_compliant">❌ Non-Compliant</option>
-                    <option value="recovering">⬆️ Recovering</option>
-                </select>
+            <div style="margin-bottom: 20px; flex-direction: column; gap: 12px;">
+                <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label for="auditorSelect">Auditing Organization:</label>
+                        <select id="auditorSelect">
+                            <option value="healthcare">MediCare Systems (Healthcare)</option>
+                            <option value="financial">SecureBank Ltd (Financial Services)</option>
+                            <option value="ecommerce">RetailTech Corp (E-Commerce)</option>
+                            <option value="legal">LawFlow Partners (Legal)</option>
+                            <option value="manufacturing">IndustrialOps Inc (Manufacturing)</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="targetSelect">Vendor/Platform Being Assessed:</label>
+                        <select id="targetSelect">
+                            <option value="salesforce">Salesforce CRM</option>
+                            <option value="aws">AWS Infrastructure</option>
+                            <option value="slack">Slack Enterprise</option>
+                            <option value="stripe">Stripe Payments</option>
+                            <option value="okta">Okta Identity</option>
+                            <option value="github">GitHub Enterprise</option>
+                            <option value="docusign">DocuSign eSignature</option>
+                            <option value="tableau">Tableau Analytics</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label for="riskSelect">Compliance Risk Profile:</label>
+                        <select id="riskSelect">
+                            <option value="healthy">✅ Healthy - Strong posture</option>
+                            <option value="needs_improvement">📈 Needs Improvement</option>
+                            <option value="post_incident">🚨 Post-Incident Recovery</option>
+                            <option value="non_compliant">❌ Non-Compliant - Critical gaps</option>
+                            <option value="recovering">⬆️ Recovering - In remediation</option>
+                            <option value="startup">🚀 Startup - Early stage</option>
+                            <option value="enterprise">🏢 Enterprise - Complex</option>
+                            <option value="perfect">🏆 Perfect - All controls effective</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div class="button-group">
@@ -605,7 +637,9 @@
             const statusList = document.getElementById('statusList');
             const resultsContainer = document.getElementById('resultsContainer');
             const demoMode = document.getElementById('demoModeToggle').checked;
-            const scenario = document.getElementById('scenarioSelect').value;
+            const auditor = document.getElementById('auditorSelect').value;
+            const target = document.getElementById('targetSelect').value;
+            const riskProfile = document.getElementById('riskSelect').value;
 
             btn.disabled = true;
             errorMsg.classList.remove('show');
@@ -620,7 +654,12 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ demo_mode: demoMode, scenario: scenario })
+                    body: JSON.stringify({
+                        demo_mode: demoMode,
+                        auditor: auditor,
+                        target: target,
+                        risk_profile: riskProfile
+                    })
                 });
 
                 const data = await response.json();
